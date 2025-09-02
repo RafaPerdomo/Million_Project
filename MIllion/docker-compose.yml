@@ -1,0 +1,27 @@
+version: '3.8'
+
+services:
+  sqlserver:
+    image: mcr.microsoft.com/mssql/server:2022-latest
+    container_name: properties-db
+    environment:
+      - ACCEPT_EULA=Y
+      - SA_PASSWORD=RafaelPerdomo2025
+      - MSSQL_PID=Express
+      - MSSQL_TOOLS_SA_PASSWORD=RafaelPerdomo2025
+    ports:
+      - "1433:1433"
+    volumes:
+      - sql_data:/var/opt/mssql
+    restart: always
+
+  mssql-tools:
+    image: mcr.microsoft.com/mssql-tools:latest
+    container_name: mssql-tools
+    environment:
+      - ACCEPT_EULA=Y
+    depends_on:
+      - sqlserver
+
+volumes:
+  sql_data:

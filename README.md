@@ -82,16 +82,10 @@ cd Million-Project
 docker-compose up -d
 ```
 
-### 3. Apply Database Migrations
-```bash
-cd properties/Properties.API
-dotnet ef database update
 ```
-
-### 4. Run the API
+### 2. Run the API
 ```bash
-dotnet run --project properties/Properties.API
-```
+Run the API project in VS```
 
 The API will be available at:  
 - `https://localhost:7200`  

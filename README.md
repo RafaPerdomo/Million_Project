@@ -81,9 +81,11 @@ cd Million-Project
 ```bash
 docker-compose up -d
 ```
+
 ### 3. Run the API
 ```bash
-Run API project in VS```
+RUN Properties.API in VS
+```
 
 The API will be available at:  
 - `https://localhost:7200`  

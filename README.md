@@ -74,7 +74,7 @@ Key design patterns:
 ### 1. Clone the Repository
 ```bash
 git clone https://github.com/RafaPerdomo/Million-Project.git
-cd Million-Project
+cd MIllion
 ```
 
 ### 2. Run SQL Server with Docker

@@ -94,7 +94,6 @@ namespace properties.Api.Infrastructure.ServiceRegistrations
                 .WithScopedLifetime()
             );
 
-            // Register remaining services that can't be handled by Scrutor
             services.AddScoped(typeof(IRepository<>), typeof(Repository<>));
             services.AddScoped<IUnitOfWork, UnitOfWork>();
             services.AddScoped<DataSeeder>();

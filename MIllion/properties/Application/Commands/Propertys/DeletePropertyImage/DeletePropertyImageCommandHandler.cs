@@ -43,7 +43,6 @@ namespace properties.Api.Application.Commands.Propertys.DeletePropertyImage
                     return false;
                 }
 
-                // Get property ID before deleting the image
                 var propertyId = image.PropertyId;
                 var result = await _propertyImageRepository.DeleteAsync(image.Id, cancellationToken);
                 if (!result)
@@ -54,11 +53,9 @@ namespace properties.Api.Application.Commands.Propertys.DeletePropertyImage
                 await _unitOfWork.CommitAsync(cancellationToken);
                 _logger.LogInformation("Successfully deleted property image with ID {ImageId}", request.ImageId);
 
-                // Get the property to get the owner ID for cache invalidation
                 var property = await _propertyRepository.GetByIdAsync(propertyId, cancellationToken);
                 if (property != null)
                 {
-                    // Invalidate caches
                     InvalidateCaches(property.Id, property.OwnerId);
                 }
 
@@ -76,17 +73,14 @@ namespace properties.Api.Application.Commands.Propertys.DeletePropertyImage
         {
             try
             {
-                // Invalidate property cache
                 _cache.Remove(CacheKeyHelper.PropertyByIdKey(propertyId));
 
-                // Invalidate property list caches
                 var propertyListKeys = _cache.GetKeysByPrefix(CacheKeyHelper.AllPropertiesKeyPrefix);
                 foreach (var key in propertyListKeys)
                 {
                     _cache.Remove(key);
                 }
 
-                // Invalidate owner cache if owner exists
                 if (ownerId.HasValue)
                 {
                     _cache.Remove(CacheKeyHelper.OwnerByIdKey(ownerId.Value));

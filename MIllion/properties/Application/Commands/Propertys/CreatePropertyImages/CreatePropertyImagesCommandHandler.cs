@@ -126,7 +126,6 @@ namespace properties.Api.Application.Commands.Propertys.CreatePropertyImages
                 _logger.LogInformation("Uploaded {SavedCount} of {TotalCount} images for property {PropertyId}",
                     savedImages.Count, request.Images.Count, request.PropertyId);
 
-                // Invalidate caches
                 InvalidateCaches(propertyExists.Id, propertyExists.OwnerId);
 
                 return new ResponseDto
@@ -151,17 +150,14 @@ namespace properties.Api.Application.Commands.Propertys.CreatePropertyImages
         {
             try
             {
-                // Invalidate property cache
                 _cache.Remove(CacheKeyHelper.PropertyByIdKey(propertyId));
                 
-                // Invalidate property list caches
                 var propertyListKeys = _cache.GetKeysByPrefix(CacheKeyHelper.AllPropertiesKeyPrefix);
                 foreach (var key in propertyListKeys)
                 {
                     _cache.Remove(key);
                 }
 
-                // Invalidate owner cache if owner exists
                 if (ownerId.HasValue)
                 {
                     _cache.Remove(CacheKeyHelper.OwnerByIdKey(ownerId.Value));

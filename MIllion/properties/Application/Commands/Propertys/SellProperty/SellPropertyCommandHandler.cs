@@ -161,6 +161,7 @@ namespace properties.Api.Application.Commands.Propertys.SellProperty
             }
             owner = new Owner
             {
+                Id = request.NewOwnerId,
                 Name = request.NewOwner.Name.Trim(),
                 Address = request.NewOwner.Address?.Trim(),
                 Photo = request.NewOwner.Photo?.Trim(),

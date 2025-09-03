@@ -71,6 +71,12 @@ namespace Properties.Infrastructure.Persistence
                 }
             }
         }
+
+        public async Task<int> ExecuteSqlRawAsync(string sql, CancellationToken cancellationToken = default)
+        {
+            return await _context.Database.ExecuteSqlRawAsync(sql, cancellationToken);
+        }
+
         public void Dispose()
         {
             Dispose(true);

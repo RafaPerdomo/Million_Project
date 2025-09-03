@@ -39,7 +39,6 @@ namespace properties.Api.Application.Commands.Propertys.UpdateProperty
         {
             _logger.LogInformation("Starting update process for property ID {PropertyId}", request.Id);
             
-            // Get the execution strategy from the context
             var strategy = _context.Database.CreateExecutionStrategy();
             
             return await strategy.ExecuteAsync(async () =>

@@ -13,5 +13,6 @@ namespace Properties.Domain.Interfaces
         Task BeginTransactionAsync(CancellationToken cancellationToken = default);
         Task CommitAsync(CancellationToken cancellationToken = default);
         Task RollbackAsync(CancellationToken cancellationToken = default);
+        Task<int> ExecuteSqlRawAsync(string sql, CancellationToken cancellationToken = default);
     }
 }

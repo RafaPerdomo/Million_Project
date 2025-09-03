@@ -46,14 +46,22 @@ namespace properties.Api.Application.Commands.Owners.CreateOwner
                     throw new InvalidOwnerOperationException($"Invalid owner data: {errorMessages}");
                 }
 
-                var existingOwner = await _ownerRepository.GetByNameAsync(request.Name, cancellationToken);
-                if (existingOwner != null)
+                if (request.IdOwner > 0)
                 {
-                    throw new OwnerAlreadyExistsException("Name", request.Name);
+                    var existingOwner = await _ownerRepository.GetByIdAsync(request.IdOwner);
+                    if (existingOwner != null)
+                    {
+                        return new ResponseDto
+                        {
+                            Success = false,
+                            Message = $"Ya existe un propietario con el ID {request.IdOwner}"
+                        };
+                    }
                 }
 
                 var owner = new Owner
                 {
+                    Id = request.IdOwner,  // Usar Id en lugar de IdOwner
                     Name = request.Name.Trim(),
                     Address = request.Address?.Trim(),
                     Birthday = request.Birthday,
@@ -61,10 +69,10 @@ namespace properties.Api.Application.Commands.Owners.CreateOwner
                 };
                 
                 await _ownerRepository.AddAsync(owner);
+                
                 await _unitOfWork.SaveChangesAsync(cancellationToken);
                 
                 _logger.LogInformation("Successfully created new owner with ID {OwnerId}", owner.Id);
-                
                 _cache.Remove(CacheKeyHelper.AllOwnersKey);
                 _logger.LogInformation("Invalidated owner caches after creation");
                 

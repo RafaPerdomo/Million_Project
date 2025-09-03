@@ -112,18 +112,14 @@ namespace properties.Api.Application.Commands.Propertys.CreateProperty
 
                 _logger.LogInformation("Successfully created property with ID: {PropertyId}", property.Id);
 
-                // Invalidate all relevant caches
-                // 1. Property caches
                 var propertyCacheKey = CacheKeyHelper.PropertyByIdKey(property.Id);
                 _cache.Remove(propertyCacheKey);
                 _logger.LogInformation("Invalidated cache for property ID: {PropertyId}", property.Id);
 
-                // 2. Properties list cache
                 var propertiesListKey = CacheKeyHelper.PropertiesListKey();
                 _cache.Remove(propertiesListKey);
                 _logger.LogInformation("Invalidated properties list cache");
                 
-                // 3. Owner caches if a new owner was created
                 if (owner != null && owner.Id > 0)
                 {
                     var ownerCacheKey = CacheKeyHelper.OwnerByIdKey(owner.Id);

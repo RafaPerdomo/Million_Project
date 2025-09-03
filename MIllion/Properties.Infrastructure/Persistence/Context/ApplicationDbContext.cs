@@ -11,13 +11,16 @@ namespace Properties.Infrastructure.Persistence.Context
     public class ApplicationDbContext : DbContext
     {
         public ApplicationDbContext(DbContextOptions<ApplicationDbContext> options)
-            : base(options) { }
+            : base(options)
+        {
+            Database.EnsureCreated();
+        }
 
         public DbSet<Property> Properties => Set<Property>();
         public DbSet<Owner> Owners => Set<Owner>();
         public DbSet<PropertyImage> PropertyImages => Set<PropertyImage>();
         public DbSet<PropertyTrace> PropertyTraces => Set<PropertyTrace>();
-        
+
         public DbSet<Domain.Entities.Auth.User> Users => Set<Domain.Entities.Auth.User>();
         public DbSet<Domain.Entities.Auth.Role> Roles => Set<Domain.Entities.Auth.Role>();
         public DbSet<Domain.Entities.Auth.UserRole> UserRoles => Set<Domain.Entities.Auth.UserRole>();
@@ -48,30 +51,27 @@ namespace Properties.Infrastructure.Persistence.Context
 
             modelBuilder.ApplyConfigurationsFromAssembly(typeof(ApplicationDbContext).Assembly);
 
-            ConfigureOwners(modelBuilder);
+            modelBuilder.Entity<Owner>(entity =>
+            {
+                entity.HasKey(e => e.Id);
+                entity.Property(e => e.Id)
+                    .ValueGeneratedNever()  // No generamos automáticamente el ID
+                    .IsRequired();
+                
+                entity.Property(e => e.Name).IsRequired().HasMaxLength(100);
+                entity.Property(e => e.Address).HasMaxLength(200);
+                entity.Property(e => e.Photo).HasColumnType("nvarchar(max)");
+                entity.Property(e => e.Birthday).IsRequired();
+                entity.Property(e => e.CreatedAt).HasDefaultValueSql("GETUTCDATE()");
+                entity.Property(e => e.IsActive).HasDefaultValue(true);
+
+                entity.ToTable("Owners");
+            });
+
             ConfigureProperties(modelBuilder);
             ConfigurePropertyImages(modelBuilder);
             ConfigureAuthEntities(modelBuilder);
             ConfigurePropertyTraces(modelBuilder);
-        }
-
-        private static void ConfigureOwners(ModelBuilder modelBuilder)
-        {
-            modelBuilder.Entity<Owner>(entity =>
-            {
-                entity.Property(e => e.Name)
-                    .IsRequired()
-                    .HasMaxLength(100);
-                
-                entity.Property(e => e.Address)
-                    .HasMaxLength(200);
-                
-                entity.Property(e => e.Photo)
-                    .HasMaxLength(500);
-                
-                entity.Property(e => e.Birthday)
-                    .IsRequired();
-            });
         }
 
         private static void ConfigureProperties(ModelBuilder modelBuilder)
@@ -81,22 +81,22 @@ namespace Properties.Infrastructure.Persistence.Context
                 entity.Property(e => e.Name)
                     .IsRequired()
                     .HasMaxLength(100);
-                
+
                 entity.Property(e => e.Address)
                     .IsRequired()
                     .HasMaxLength(200);
-                
+
                 entity.Property(e => e.Price)
                     .HasPrecision(18, 2)
                     .IsRequired();
-                
+
                 entity.Property(e => e.CodeInternal)
                     .IsRequired()
                     .HasMaxLength(50);
-                
+
                 entity.Property(e => e.Year)
                     .IsRequired();
-                
+
                 entity.HasOne(p => p.Owner)
                     .WithMany(o => o.Properties)
                     .HasForeignKey(p => p.OwnerId)
@@ -121,18 +121,18 @@ namespace Properties.Infrastructure.Persistence.Context
             {
                 entity.HasIndex(u => u.Username).IsUnique();
                 entity.HasIndex(u => u.Email).IsUnique();
-                
+
                 entity.Property(u => u.Username).IsRequired().HasMaxLength(100);
                 entity.Property(u => u.Email).IsRequired().HasMaxLength(100);
                 entity.Property(u => u.FirstName).HasMaxLength(200);
                 entity.Property(u => u.LastName).HasMaxLength(200);
                 entity.Property(u => u.CreatedAt).IsRequired();
-                
+
                 entity.HasMany(u => u.UserRoles)
                     .WithOne(ur => ur.User)
                     .HasForeignKey(ur => ur.UserId)
                     .OnDelete(DeleteBehavior.Cascade);
-                    
+
                 entity.HasMany(u => u.RefreshTokens)
                     .WithOne(rt => rt.User)
                     .HasForeignKey(rt => rt.UserId)
@@ -144,7 +144,7 @@ namespace Properties.Infrastructure.Persistence.Context
                 entity.HasIndex(r => r.Name).IsUnique();
                 entity.Property(r => r.Name).IsRequired().HasMaxLength(50);
                 entity.Property(r => r.Description).HasMaxLength(500);
-                
+
                 entity.HasMany(r => r.UserRoles)
                     .WithOne(ur => ur.Role)
                     .HasForeignKey(ur => ur.RoleId)
@@ -154,11 +154,11 @@ namespace Properties.Infrastructure.Persistence.Context
             modelBuilder.Entity<Domain.Entities.Auth.UserRole>(entity =>
             {
                 entity.HasKey(ur => new { ur.UserId, ur.RoleId });
-                
+
                 entity.HasOne(ur => ur.User)
                     .WithMany(u => u.UserRoles)
                     .HasForeignKey(ur => ur.UserId);
-                    
+
                 entity.HasOne(ur => ur.Role)
                     .WithMany(r => r.UserRoles)
                     .HasForeignKey(ur => ur.RoleId);
@@ -169,7 +169,7 @@ namespace Properties.Infrastructure.Persistence.Context
                 entity.HasKey(rt => rt.Id);
                 entity.Property(rt => rt.Token).IsRequired();
                 entity.Property(rt => rt.Expires).IsRequired();
-                
+
                 entity.HasOne(rt => rt.User)
                     .WithMany(u => u.RefreshTokens)
                     .HasForeignKey(rt => rt.UserId)
@@ -183,19 +183,19 @@ namespace Properties.Infrastructure.Persistence.Context
             {
                 entity.Property(e => e.DateSale)
                     .IsRequired();
-                
+
                 entity.Property(e => e.Name)
                     .IsRequired()
                     .HasMaxLength(100);
-                
+
                 entity.Property(e => e.Value)
                     .HasPrecision(18, 2)
                     .IsRequired();
-                
+
                 entity.Property(e => e.Tax)
                     .HasPrecision(18, 2)
                     .IsRequired();
-                
+
                 entity.HasOne(pt => pt.Property)
                     .WithMany(p => p.PropertyTraces)
                     .HasForeignKey(pt => pt.PropertyId)

@@ -80,11 +80,9 @@ namespace properties.Api.Application.Queries.Propertys.ListProperties
                 !request.Year.HasValue && 
                 !request.OwnerId.HasValue)
             {
-                // For default list with no filters, use the simple list key
                 return CacheKeyHelper.PropertiesListKey();
             }
             
-            // For filtered lists, use the detailed cache key
             var cacheKey = CacheKeyHelper.GenerateListCacheKey(
                 request.PageNumber,
                 request.PageSize,
@@ -94,7 +92,6 @@ namespace properties.Api.Application.Queries.Propertys.ListProperties
                 request.Year,
                 request.OwnerId);
                 
-            // Add PropertyTypeId to the cache key if specified
             if (request.PropertyTypeId.HasValue)
             {
                 cacheKey += $"_Type_{request.PropertyTypeId}";

@@ -80,7 +80,6 @@ namespace properties.Api.Application.Commands.Owners.UpdateOwnerPhoto
                     throw new InvalidOwnerOperationException($"Validation failed: {errorMessages}");
                 }
 
-                // Store the base64 string directly in the database
                 owner.Photo = request.PhotoBase64;
                 await _ownerRepository.UpdateAsync(owner);
                 await _unitOfWork.SaveChangesAsync(cancellationToken);

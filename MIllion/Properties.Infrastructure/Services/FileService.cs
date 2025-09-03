@@ -68,7 +68,6 @@ namespace Properties.Infrastructure.Services
             catch (Exception ex)
             {
                 _logger.LogError(ex, "Error deleting photo: {FilePath}", filePath);
-                // Don't throw, as this is typically a non-critical operation
             }
         }
 

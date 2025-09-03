@@ -59,18 +59,17 @@ namespace Properties.Infrastructure.Persistence.Repositories
 
         public virtual async Task<T> AddAsync(T entity, CancellationToken cancellationToken = default)
         {
-            _entities.Add(entity);
-            await _context.SaveChangesAsync(cancellationToken);
-            return entity;
+            var entry = await _entities.AddAsync(entity, cancellationToken);
+            return entry.Entity;
         }
 
-        public virtual async Task UpdateAsync(T entity, CancellationToken cancellationToken = default)
+        public virtual Task UpdateAsync(T entity, CancellationToken cancellationToken = default)
         {
             _context.Entry(entity).State = EntityState.Modified;
-            await _context.SaveChangesAsync(cancellationToken);
+            return Task.CompletedTask;
         }
 
-        public virtual async Task DeleteAsync(T entity, CancellationToken cancellationToken = default)
+        public virtual Task DeleteAsync(T entity, CancellationToken cancellationToken = default)
         {
             if (entity is ISoftDeletable softDeletable)
             {
@@ -82,7 +81,7 @@ namespace Properties.Infrastructure.Persistence.Repositories
                 _entities.Remove(entity);
             }
             
-            await _context.SaveChangesAsync(cancellationToken);
+            return Task.CompletedTask;
         }
 
         public virtual async Task<bool> ExistsAsync(Expression<Func<T, bool>> predicate, CancellationToken cancellationToken = default)
